@@ -15,4 +15,4 @@ Phase one of intense focus to put the PEPFAR SA program back on track to have 6.
 
 - March 18 to May 09, 2019
 
-For additional information, visit the [wiki page](https://github.com/south-africa-strategic-information/Siyenza/org/wiki).
+For additional information, visit the [wiki page](https://github.com/south-africa-strategic-information/Siyenza/wiki).
