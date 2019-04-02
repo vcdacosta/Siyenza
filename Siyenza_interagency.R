@@ -21,12 +21,12 @@ GenerateInteragencyOutput <-  function(tx_curr_startOfSiyenza,
   currentWeekStart         <-  as.POSIXct(currentWeekStart)
   currentWeekEnd           <-  as.POSIXct(currentWeekEnd)
 
-
-  tx_curr_startOfSiyenza  <-  as.POSIXct("2019-03-01")
-  startOfSiyenza          <-  as.POSIXct("2019-03-15")
-  endOfSiyenza            <-  as.POSIXct("2019-05-10")
-  currentWeekStart        <-  as.POSIXct("2019-03-23")
-  currentWeekEnd          <-  as.POSIXct("2019-03-29")
+# 
+#   tx_curr_startOfSiyenza  <-  as.POSIXct("2019-03-01")
+#   startOfSiyenza          <-  as.POSIXct("2019-03-15")
+#   endOfSiyenza            <-  as.POSIXct("2019-05-10")
+#   currentWeekStart        <-  as.POSIXct("2019-03-23")
+#   currentWeekEnd          <-  as.POSIXct("2019-03-29")
   
   weeks_remaining <- isoweek(endOfSiyenza) - isoweek(currentWeekEnd)
   
