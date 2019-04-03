@@ -13,7 +13,8 @@ GenerateInteragencyOutput <-  function(tx_curr_startOfSiyenza,
                                        startOfSiyenza, 
                                        endOfSiyenza, 
                                        currentWeekStart,
-                                       currentWeekEnd)
+                                       currentWeekEnd,
+                                       df)
 {
   tx_curr_startOfSiyenza   <-  as.POSIXct(tx_curr_startOfSiyenza)
   startOfSiyenza           <-  as.POSIXct(startOfSiyenza)
@@ -21,12 +22,12 @@ GenerateInteragencyOutput <-  function(tx_curr_startOfSiyenza,
   currentWeekStart         <-  as.POSIXct(currentWeekStart)
   currentWeekEnd           <-  as.POSIXct(currentWeekEnd)
 
-# 
-#   tx_curr_startOfSiyenza  <-  as.POSIXct("2019-03-01")
-#   startOfSiyenza          <-  as.POSIXct("2019-03-15")
-#   endOfSiyenza            <-  as.POSIXct("2019-05-10")
-#   currentWeekStart        <-  as.POSIXct("2019-03-23")
-#   currentWeekEnd          <-  as.POSIXct("2019-03-29")
+ 
+  # tx_curr_startOfSiyenza  <-  as.POSIXct("2019-03-01")
+  # startOfSiyenza          <-  as.POSIXct("2019-03-15")
+  # endOfSiyenza            <-  as.POSIXct("2019-05-10")
+  # currentWeekStart        <-  as.POSIXct("2019-03-23")
+  # currentWeekEnd          <-  as.POSIXct("2019-03-29")
   
   weeks_remaining <- isoweek(endOfSiyenza) - isoweek(currentWeekEnd)
   
@@ -142,11 +143,59 @@ GenerateInteragencyOutput <-  function(tx_curr_startOfSiyenza,
   
   
   write.table(df, paste0("Outputs/interagencyDash_", Sys.Date(), ".txt"), sep = "\t", row.names = FALSE)
+  
+  return(df)
+  
 }
 
-GenerateInteragencyOutput(tx_curr_startOfSiyenza  = "2019-03-01",
+
+GenerateDataQualityReport <- function(df,currentWeekEnd,df_quality)
+{
+  
+  currentWeekEnd           <-  as.POSIXct(currentWeekEnd)
+  
+  df_quality <-  df %>% 
+    mutate(TX_NEW_CURRENT = case_when(Week_End == date(currentWeekEnd) ~ TX_NEW, TRUE ~ ""),
+           TX_NET_NEW_Montly_Target = case_when(Week_End == date(currentWeekEnd) ~ (8*as.numeric(TARG_WKLY_NETNEW)), TRUE ~ 0 )) %>% 
+    select(FundingAgency, PrimePartner,Facility,
+           TX_CURR_28_BASE, TX_CURR_28_TODATE, TX_NET_NEW_28_TODATE,
+           TX_NEW_CURRENT,TX_NET_NEW_Montly_Target) %>% 
+    gather(indicator, value,TX_CURR_28_BASE:TX_NET_NEW_Montly_Target, na.rm=TRUE) %>% 
+    mutate(value = as.numeric(value)) %>% 
+    drop_na(value) %>% 
+    filter(value != 0) %>% 
+    spread(indicator, value) %>% 
+    mutate(change_TX_CURR = (TX_NET_NEW_28_TODATE/TX_CURR_28_BASE),
+           NEW_vs_NET_NEW = (TX_NEW_CURRENT/TX_NET_NEW_28_TODATE),
+           issue = case_when(change_TX_CURR >= 0.1 & NEW_vs_NET_NEW <= 0.25 ~
+                               ">10% INCREASE IN TX_CURR, LOW TX_NEW vs NET_NEW %",
+                             NEW_vs_NET_NEW <= 0.25 ~ "LOW %  TX_NEW vs NET_NEW",
+                             TX_NET_NEW_28_TODATE < 0 ~"NEGATIVE NET NEW",
+                             TRUE ~ "")) %>% 
+    filter(issue != "")
+  
+  write.table(df_quality, paste0("Outputs/qualitycheck_", Sys.Date(), ".txt"), sep = "\t", row.names = FALSE)
+  
+  
+  return(df_quality)
+  
+}
+
+df <- GenerateInteragencyOutput(tx_curr_startOfSiyenza  = "2019-03-01",
                           startOfSiyenza = "2019-03-15",
                           endOfSiyenza = "2019-05-10",
                           currentWeekStart = "2019-03-16",
-                          currentWeekEnd = "2019-03-22" )
+                          currentWeekEnd = "2019-03-29")
+
+
+# tx_curr_startOfSiyenza  <-  as.POSIXct("2019-03-01")
+# startOfSiyenza          <-  as.POSIXct("2019-03-15")
+# endOfSiyenza            <-  as.POSIXct("2019-05-10")
+# currentWeekStart        <-  as.POSIXct("2019-03-23")
+# currentWeekEnd          <-  as.POSIXct("2019-03-29")
+
+df_quality <-  GenerateDataQualityReport(df, currentWeekEnd = "2019-03-29")
+
+
+
 
