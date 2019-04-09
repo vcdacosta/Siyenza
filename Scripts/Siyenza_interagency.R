@@ -145,7 +145,7 @@ GenerateInteragencyOutput <-  function(tx_curr_startOfSiyenza,
     arrange(Facility,Week_End)
   
   
-  write.table(df, paste0("Outputs/interagencyDash_", Sys.Date(), ".txt"), sep = "\t", row.names = FALSE)
+  write.table(df, paste0("../Outputs/interagencyDash_", Sys.Date(), ".txt"), sep = "\t", row.names = FALSE)
   
   return(df)
   
