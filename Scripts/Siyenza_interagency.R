@@ -33,11 +33,11 @@ GenerateInteragencyOutput <-  function(tx_curr_startOfSiyenza,
   
   tx_curr_dates <-  c("2019-03-01","2019-03-29","2019-04-12","2019-05-03", "2019-05-10")
   
-  cdc_result <- read_excel("../RAW/CDC_Siyenza_20190404.xlsx", sheet = "Siyenza") %>%
+  cdc_result <- read_excel("RAW/CDC_Siyenza_20190404.xlsx", sheet = "Siyenza") %>%
     # filter(Week_End >= startOfSiyenza & Week_End <= date(currentWeekEnd) +1)
     filter(Week_End >= tx_curr_startOfSiyenza & Week_End <= date(currentWeekEnd))
   
-  usaid_result <- read_excel("../RAW/USAID_Siyenza_20190403.xlsx", sheet = "USAID") %>% 
+  usaid_result <- read_excel("RAW/USAID_Siyenza_20190403.xlsx", sheet = "USAID") %>% 
     filter(Week_End >= tx_curr_startOfSiyenza & Week_End <= date(currentWeekEnd))
   
   df_merged <- bind_rows(cdc_result, usaid_result) %>% 
@@ -145,7 +145,7 @@ GenerateInteragencyOutput <-  function(tx_curr_startOfSiyenza,
     arrange(Facility,Week_End)
   
   
-  write.table(df, paste0("../Outputs/interagencyDash_", Sys.Date(), ".txt"), sep = "\t", row.names = FALSE)
+  write.table(df, paste0("Outputs/interagencyDash_", Sys.Date(), ".txt"), sep = "\t", row.names = FALSE)
   
   return(df)
   
