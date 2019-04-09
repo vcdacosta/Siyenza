@@ -33,11 +33,11 @@ GenerateInteragencyOutput <-  function(tx_curr_startOfSiyenza,
   
   tx_curr_dates <-  c("2019-03-01","2019-03-29","2019-04-12","2019-05-03", "2019-05-10")
   
-  cdc_result <- read_excel("RAW/CDC_Siyenza_20190404.xlsx", sheet = "Siyenza") %>%
+  cdc_result <- read_excel("../RAW/CDC_Siyenza_20190404.xlsx", sheet = "Siyenza") %>%
     # filter(Week_End >= startOfSiyenza & Week_End <= date(currentWeekEnd) +1)
     filter(Week_End >= tx_curr_startOfSiyenza & Week_End <= date(currentWeekEnd))
   
-  usaid_result <- read_excel("RAW/USAID_Siyenza_20190403.xlsx", sheet = "USAID") %>% 
+  usaid_result <- read_excel("../RAW/USAID_Siyenza_20190403.xlsx", sheet = "USAID") %>% 
     filter(Week_End >= tx_curr_startOfSiyenza & Week_End <= date(currentWeekEnd))
   
   df_merged <- bind_rows(cdc_result, usaid_result) %>% 
@@ -127,9 +127,11 @@ GenerateInteragencyOutput <-  function(tx_curr_startOfSiyenza,
     spread(indicator, value) %>% 
     mutate(TX_NET_NEW_28_TODATE = (`TX_CURR_28_TODATE` - `TX_CURR_28_BASE`),
            Week_Start = as.POSIXct(date(currentWeekStart)),
-           Week_End = as.POSIXct(date(currentWeekEnd))) %>% 
-    gather(indicator, value, TX_CURR_28_BASE:TX_NET_NEW_28_TODATE ) %>% 
-    filter(indicator == "TX_NET_NEW_28_TODATE")
+           Week_End = as.POSIXct(date(currentWeekEnd)),
+           TX_NET_NEW_AVG = case_when(Week_End == as.POSIXct(date("2019-03-29")) ~ TX_NET_NEW_28_TODATE/4,
+                                      TRUE ~ TX_NET_NEW_28_TODATE/2)) %>% 
+    gather(indicator, value, TX_CURR_28_BASE,TX_CURR_28_TODATE,TX_NET_NEW_28_TODATE,TX_NET_NEW_AVG) %>% 
+    filter(indicator %in% c('TX_NET_NEW_28_TODATE', 'TX_NET_NEW_AVG'))
    
   df_curr <-  bind_rows(df_tx_curr_merged,df_net_new)
   
